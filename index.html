@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kalkulator Valuasi Saham</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--ink:#17212b;--muted:#667085;--line:#dfe5eb;--blue:#2457c5;--green:#147d4b;--red:#b42318;--amber:#9a6700}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:980px;margin:28px auto;padding:0 16px}.hero{margin-bottom:18px}.hero h1{font-size:27px;margin:0 0 6px}.hero p{margin:0;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 2px 8px #17212b08}.card h2{font-size:17px;margin:0 0 14px}.fieldgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+label{display:block;font-weight:600;font-size:13px;margin-bottom:5px}input,select{width:100%;padding:10px 11px;border:1px solid #cbd5df;border-radius:8px;font:inherit;background:#fff;color:var(--ink)}input:focus,select:focus{outline:2px solid #b7ccff;border-color:var(--blue)}
+.hint{font-size:12px;color:var(--muted);margin-top:4px}.full{grid-column:1/-1}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}button{border:0;border-radius:9px;padding:11px 17px;font:600 14px system-ui;cursor:pointer}.primary{background:var(--blue);color:#fff}.secondary{background:#e9eef5;color:#263445}
+.result{margin-top:16px}.status{font-size:23px;font-weight:800;margin:0 0 4px}.status.under{color:var(--green)}.status.over{color:var(--red)}.status.fair{color:var(--amber)}.status.unknown{color:var(--muted)}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}.metric{background:#f7f9fb;border:1px solid var(--line);border-radius:10px;padding:12px}.metric small{display:block;color:var(--muted)}.metric strong{font-size:19px}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{text-align:left;padding:9px 7px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:600}.tag{font-weight:700}.note{font-size:13px;color:var(--muted);margin-top:12px}.warning{background:#fff8e6;border:1px solid #f2d58b;padding:12px;border-radius:10px;font-size:13px;margin-top:14px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.fieldgrid{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:1fr}.hero h1{font-size:23px}}
+</style>
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2457c5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+<h1>Kalkulator Valuasi Saham</h1>
+<p>Masukkan rasio saham dan pembanding industrinya untuk mendapat indikasi awal: undervalued, fair value, atau overvalued.</p>
+</header>
+<div class="grid">
+<section class="card">
+<h2>1. Data saham</h2>
+<div class="fieldgrid">
+<div><label for="name">Nama / kode saham</label><input id="name" placeholder="Contoh: BMRI"></div>
+<div><label for="sector">Sektor</label><select id="sector"><option>Perbankan</option><option>Consumer</option><option>Energi / Tambang</option><option>Properti</option><option>Telekomunikasi</option><option>Teknologi</option><option>Lainnya</option></select></div>
+<div><label for="per">PER saat ini (x)</label><input id="per" type="number" min="0" step="any" placeholder="Contoh: 10"></div>
+<div><label for="perPeer">PER rata-rata industri (x)</label><input id="perPeer" type="number" min="0" step="any" placeholder="Contoh: 12"></div>
+<div><label for="pbv">PBV saat ini (x)</label><input id="pbv" type="number" min="0" step="any" placeholder="Contoh: 1.5"></div>
+<div><label for="pbvPeer">PBV rata-rata industri (x)</label><input id="pbvPeer" type="number" min="0" step="any" placeholder="Contoh: 2"></div>
+<div><label for="roe">ROE (%)</label><input id="roe" type="number" step="any" placeholder="Contoh: 18"></div>
+<div><label for="roePeer">ROE rata-rata industri (%)</label><input id="roePeer" type="number" step="any" placeholder="Contoh: 15"></div>
+<div><label for="growth">Pertumbuhan EPS (%)</label><input id="growth" type="number" step="any" placeholder="Contoh: 10"></div>
+<div><label for="debt">DER (%)</label><input id="debt" type="number" min="0" step="any" placeholder="Contoh: 80"></div>
+<div><label for="ocf">Arus kas operasi</label><select id="ocf"><option value="">Belum diisi</option><option value="yes">Positif</option><option value="no">Negatif</option></select></div>
+<div><label for="eps">Laba bersih / EPS</label><select id="eps"><option value="">Belum diisi</option><option value="yes">Positif dan stabil</option><option value="no">Negatif / menurun</option></select></div>
+</div>
+<p class="hint">Gunakan angka rasio dalam bentuk kelipatan (mis. PER 12x) dan persentase tanpa tanda % (mis. ROE 18).</p>
+</section>
+<section class="card">
+<h2>2. Pengaturan penilaian</h2>
+<div class="fieldgrid">
+<div><label for="discount">Diskon untuk disebut undervalued (%)</label><input id="discount" type="number" min="0" max="50" value="15" step="1"></div>
+<div><label for="premium">Premium untuk disebut overvalued (%)</label><input id="premium" type="number" min="0" max="100" value="15" step="1"></div>
+<div class="full"><label for="weight">Metode pembobotan</label><select id="weight"><option value="equal">PER dan PBV bobot sama</option><option value="per">PER lebih dominan (70%)</option><option value="pbv">PBV lebih dominan (70%)</option></select></div>
+</div>
+<p class="hint">Pembanding industri harus berasal dari perusahaan sejenis dan periode data yang sama. Untuk sektor tertentu, PER/PBV bisa kurang relevan.</p>
+<div class="actions"><button class="primary" onclick="calculate()">Analisis valuasi</button><button class="secondary" onclick="resetForm()">Reset</button></div>
+<div id="result" class="result" aria-live="polite">
+<p class="status unknown">Hasil analisis akan muncul di sini</p>
+<p class="note">Isi PER, PBV, dan pembanding industrinya, lalu tekan “Analisis valuasi”.</p>
+</div>
+</section>
+</div>
+<div class="warning"><b>Catatan penting:</b> Ini alat screening sederhana, bukan penentu nilai intrinsik. PER/PBV rendah tidak otomatis murah; bisa mencerminkan prospek buruk atau risiko tinggi. Hasil tidak memperhitungkan seluruh faktor seperti kualitas manajemen, siklus bisnis, risiko regulasi, kebutuhan modal, dan proyeksi arus kas.</div>
+<p class="note">Data diproses langsung di browser dan tidak dikirim ke server. Kalkulator ini tidak mengambil harga saham atau laporan keuangan secara otomatis.</p>
+</div>
+<script>
+const ids=['name','sector','per','perPeer','pbv','pbvPeer','roe','roePeer','growth','debt','ocf','eps','discount','premium','weight'];
+function val(id){const x=document.getElementById(id).value;return x===''?null:Number(x)}
+function fmt(x){return x===null||!Number.isFinite(x)?'—':x.toFixed(2).replace('.',',')}
+function calculate(){
+ const p=val('per'), pp=val('perPeer'), b=val('pbv'), bp=val('pbvPeer');
+ const roe=val('roe'), rp=val('roePeer'), growth=val('growth'), debt=val('debt');
+ const disc=val('discount')??15, prem=val('premium')??15, weight=document.getElementById('weight').value;
+ const ocf=document.getElementById('ocf').value, eps=document.getElementById('eps').value;
+ const validPER=p!==null&&pp!==null&&p>0&&pp>0;
+ const validPBV=b!==null&&bp!==null&&b>0&&bp>0;
+ if(!validPER&&!validPBV){document.getElementById('result').innerHTML='<p class="status unknown">Data belum cukup</p><p class="note">Masukkan PER dan pembanding PER, atau PBV dan pembanding PBV. Nilainya harus lebih besar dari nol.</p>';return}
+ const ratios=[];
+ if(validPER) ratios.push({name:'PER relatif industri',ratio:p/pp,weight:weight==='pbv'?.3:weight==='per'?.7:.5});
+ if(validPBV) ratios.push({name:'PBV relatif industri',ratio:b/bp,weight:weight==='per'?.3:weight==='pbv'?.7:.5});
+ let totalW=ratios.reduce((s,r)=>s+r.weight,0);
+ const relative=ratios.reduce((s,r)=>s+r.ratio*r.weight,0)/totalW;
+ const discount=(1-relative)*100;
+ let status=relative<=1-disc/100?'Indikasi UNDERVALUED':relative>=1+prem/100?'Indikasi OVERVALUED':'Indikasi FAIR VALUE';
+ let cls=relative<=1-disc/100?'under':relative>=1+prem/100?'over':'fair';
+ let cautions=[];
+ if(roe!==null&&rp!==null&&roe<rp)cautions.push('ROE di bawah rata-rata industri: valuasi diskon mungkin mencerminkan profitabilitas yang lebih lemah.');
+ if(growth!==null&&growth<0)cautions.push('Pertumbuhan EPS negatif: periksa apakah laba sedang mengalami penurunan.');
+ if(debt!==null&&debt>200)cautions.push('DER di atas 200%: periksa struktur utang dan karakteristik sektornya. Batas ini tidak cocok untuk semua industri.');
+ if(ocf==='no')cautions.push('Arus kas operasi negatif: periksa kualitas laba dan kebutuhan modal kerja.');
+ if(eps==='no')cautions.push('Laba negatif/menurun: PER dapat tidak bermakna atau menyesatkan.');
+ if(!cautions.length)cautions.push('Belum ada sinyal peringatan dari data tambahan yang diisi. Ini bukan bukti bahwa perusahaan bebas risiko.');
+ const name=document.getElementById('name').value.trim()||'Saham yang dianalisis';
+ let rows=ratios.map(r=>`<tr><td>${r.name}</td><td>${fmt(r.ratio)}x</td><td>${fmt(r.ratio*100)}% dari rata-rata industri</td></tr>`).join('');
+ const html=`<p class="status ${cls}">${status}</p><div>${name} — ${document.getElementById('sector').value}</div>
+ <div class="metrics"><div class="metric"><small>Rasio valuasi relatif</small><strong>${fmt(relative)}x</strong></div><div class="metric"><small>Diskon / premium relatif</small><strong>${discount>=0?fmt(discount)+'%':fmt(Math.abs(discount))+'% premium'}</strong></div><div class="metric"><small>Jumlah indikator valuasi</small><strong>${ratios.length}</strong></div></div>
+ <table><thead><tr><th>Indikator</th><th>Rasio saham / industri</th><th>Posisi relatif</th></tr></thead><tbody>${rows}</tbody></table>
+ <h3 style="font-size:15px;margin:16px 0 6px">Pemeriksaan fundamental</h3><ul>${cautions.map(x=>'<li>'+x+'</li>').join('')}</ul>
+ <p class="note">Interpretasi: indeks relatif di bawah 1 berarti valuasi lebih rendah dari pembanding. Ambang undervalued saat ini ${disc}% dan overvalued ${prem}%. Hasil ini hanya perbandingan relatif, bukan estimasi nilai intrinsik.</p>`;
+ document.getElementById('result').innerHTML=html;
+}
+function resetForm(){ids.forEach(id=>{const el=document.getElementById(id);if(id==='sector')el.selectedIndex=0;else if(id==='discount')el.value=15;else if(id==='premium')el.value=15;else if(id==='weight')el.value='equal';else el.value=''});document.getElementById('result').innerHTML='<p class="status unknown">Hasil analisis akan muncul di sini</p><p class="note">Isi indikator lalu tekan “Analisis valuasi”.</p>'}
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>

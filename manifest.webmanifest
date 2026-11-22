@@ -1,0 +1,19 @@
+{
+  "name": "Kalkulator Valuasi Saham",
+  "short_name": "Valuasi Saham",
+  "description": "Kalkulator screening valuasi saham berdasarkan PER, PBV, dan indikator fundamental.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f6f8",
+  "theme_color": "#2457c5",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
